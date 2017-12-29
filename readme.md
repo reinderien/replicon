@@ -1,5 +1,7 @@
 # replicon
 
+*This is mirrored at [GreasyFork](https://greasyfork.org/en/scripts/36852-replicon).*
+
 ## Introduction
 
 [Replicon](https://www.replicon.com) sells "time intelligence" products to companies. One such product is their "Replicon Web Timesheet: Project & Billing Edition, Time & Attendance Edition". This is a web product often installed as a sub-domain of a company's internet or intranet site.
@@ -15,6 +17,8 @@ This script fixes the aforementioned Replicon products from the outside, for you
 1. Install [Chrome Browser](https://www.google.com/chrome/browser/desktop/index.html).
 2. Install [TamperMonkey](https://tampermonkey.net) plugin on Chrome.
 3. Install replicon.js to TamperMonkey.
+
+The `@include` matches the URL `http[s]://timesheet.*.*/Timesheet/main.aspx`. This matches what I've seen, but it may need adjusting for your instance. The more specific you make it the safer it will be for you to deploy this script.
 
 The only way for this to take effect company-wide would be for the Chrome browser, the TamperMonkey plugin and the Replicon script to be installed on each client. (Or Replicon themselves could release a patch, but who knows if that's feasible.)
 
