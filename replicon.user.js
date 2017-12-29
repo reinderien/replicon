@@ -1,11 +1,10 @@
 // ==UserScript==
 // @name        replicon
-// @version     0.2
+// @version     0.3
 // @description Fix Chrome incompatibilities in Replicon TimeSheet sites
 // @author      Greg Toombs
 // @namespace   https://github.com/reinderien
 // @homepage    https://github.com/reinderien/replicon
-// @downloadURL https://raw.githubusercontent.com/reinderien/replicon/master/replicon.js
 // @include     /^https?://timesheet\.\w+\.\w+/Timesheet/main\.aspx$/
 // @run-at      document-end
 // @grant       none
@@ -15,11 +14,10 @@
 window.load = document.getElementById('load').contentWindow;
 
 // Patch the parameter parsing in jsLoaderObject.loadFrom() - inline comments break it
-window.nocomments = function(s) {
-   return s.replace(/\s*\/\*.*?\*\/\s*/g, '');
+old_string = window.String;
+window.String = function(o) {
+    var s = old_string(o);
+    if (typeof(o) == 'function')
+        s = s.replace(/\s*\/\*.*?\*\/\s*/g, '');
+    return s;
 };
-var loader = window.jsLoader.jsLoaderObject,
-    lf = '(' + loader.loadFrom.toString()
-      .replace('function jsLoaderObject_loadFrom', 'function')
-      .replace(/var body/g, 'o = nocomments(o); var body') + ')';
-loader.loadFrom = eval(lf);
