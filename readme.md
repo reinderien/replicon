@@ -30,7 +30,7 @@ themselves could release a patch, but who knows if that's feasible.)
 ## "Design"
 
 The Replicon product uses the Microsoft-stack ([IIS](https://www.iis.net) +
-([ASP](https://www.asp.net)), a scattering of [jQuery](https://jquery.com), and piles and
+[ASP](https://www.asp.net)), a scattering of [jQuery](https://jquery.com), and piles and
 piles of custom JavaScript found both embedded in pages as well as in separate script files.
 Some script files, notably `Timesheet/CombineScripts.axd`, are auto-generated and take huge
 query parameters. (AXD files are ASP.net AJAX toolkit HTTP handlers.)
@@ -41,15 +41,14 @@ non-minified code. None of it has been obfuscated.
 The site also relies quite heavily on dynamically manipulated iframes, in turn used by a
 home-grown dependency loading system. No AJAX requests appear to have been used.
 
-## Compatibility
-
-### Internet Explorer
+## Internet Explorer issues
 
 When IE Compatibility View is enabled for the site, regardless of emulation version (5, 7, 8,
 9, 10 or Edge), it works.
 
-When IE Compatibility View is disabled, different emulation modes exhibit different behaviours. The site
-works under Edge emulation. On all other versions (IE 5, 7, 8, and 9), the following line fails:
+When IE Compatibility View is disabled, different emulation modes exhibit different behaviours.
+The site works under Edge emulation. On all other versions (IE 5, 7, 8, and 9), the following
+line fails:
 
 ```
 if (GUI_getBrowserType()=="Mozilla") {
@@ -57,11 +56,47 @@ if (GUI_getBrowserType()=="Mozilla") {
 ```
 
 This throws an "Event is undefined" error. It's mis-identifying the browser as being Mozilla-based. The
-links on the bottom (Print, Copy From, Save, Cancel and Submit) are then missing. This
-GreaseMonkey script does not fix this issue.
+links on the bottom (Print, Copy From, Save, Cancel and Submit) are then missing.
 
-### Chrome
+This GreaseMonkey script does not fix this issue. Trixie is dead and I can't be bothered to
+investigate [IE7Pro](https://en.wikipedia.org/wiki/IE7Pro).
 
-The inner iframe hangs on "Generating Timesheet..." despite the fact that `window.body.location` is
-successfully modified.
+## Chrome issues
 
+There are two main compatibility issues here.
+
+### iframe hang
+
+The inner iframe hangs on "Generating Timesheet...".
+
+This is due to the way that Replicon interprets `window.load`, where `load` is the ID of an iframe
+used to perform dynamic GETs. In Internet Explorer, `window.load` evaluates to the inner window of
+the iframe. Somewhat more sanely, in Chrome, it evaluates to the iframe object itself. The workaround
+is to assign `window.load` to be the `contentWindow` of the iframe.
+
+### eval faceplant
+
+Another prominent feature of Replicon's design is its propensity to read its own source, parse it,
+hack on it and re-eval it. In Internet Explorer they've managed to get this working. In Chrome, it
+fails due to certain types of function.toString() source containing comments. The workaround is to 
+strip out inline comments after the source reading step.
+
+## Post-Mortem
+
+I've until now attempted to withhold my editorializing, but here it goes:
+
+I realize this creature is likely a product of its times (poor browser inter-compatibility, patchy support for
+AJAX, etc.), but there is no excuse to sell and use something like it in 2017. And it is in use.
+
+Some specific gripes about its design:
+
+- Javascript is already an abomination even when it's used well, and surprise, it isn't here.
+- No one uses frames anymore, for a good reason. Especially, don't use frames when you should be doing AJAX.
+- Don't hack together your own frame-based chain-loading dependency resolution system. It's both slow and bad.
+- Don't abuse eval. Introspection has its (infrequent) use cases, and this is not one. The introspection
+  and re-eval code I've witnessed and fixed here is a cursed abortion from the deepest bowels of hell, a
+  human-centipede-like Lovecraftian horror that will never leave my nightmares.
+
+I can only hope that Replicon kills all of this with cleansing fire and writes something, anything, more sane.
+I'm not a fan boy of the latest goofy Javascript and Node trends, but anything is better than this.
+  
