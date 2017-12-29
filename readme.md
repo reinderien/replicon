@@ -78,17 +78,24 @@ is to assign `window.load` to be the `contentWindow` of the iframe.
 
 Another prominent feature of Replicon's design is its propensity to read its own source, parse it,
 hack on it and re-eval it. In Internet Explorer they've managed to get this working. In Chrome, it
-fails due to certain types of function.toString() source containing comments. The workaround is to 
+fails due to certain types of `function.toString()` source containing comments. The workaround is to 
 strip out inline comments after the source reading step.
 
 ## Post-Mortem
 
 I've until now attempted to withhold my editorializing, but here it goes:
 
-I realize this creature is likely a product of its times (poor browser inter-compatibility, patchy support for
-AJAX, etc.), but there is no excuse to sell and use something like it in 2017. And it is in use.
+I realize this creature is likely a product of its times (poor browser inter-compatibility, patchy
+support for AJAX, etc.), but there is no excuse to sell and use something like it in 2017. And it is
+in use.
 
-Some specific gripes about its design:
+Debugging this Gordian knot required some truly concerted effort over the Christmas holiday, which
+was an exercise in archeology, forensics, cryptozoology and exorcism, simultaneously. It didn't help
+that Internet Explorer developer tools mis-report iframe request initiation, and Chrome developer
+tools mis-report some variables as being undefined in certain narrow contexts where an `eval`
+dramatically fails.
+
+Some specific gripes about the design:
 
 - Javascript is already an abomination even when it's used well, and surprise, it isn't here.
 - No one uses frames anymore, for a good reason. Especially, don't use frames when you should be doing AJAX.
