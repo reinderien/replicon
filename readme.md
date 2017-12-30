@@ -8,11 +8,11 @@
 
 The product has severe but easy-to-fix compatibility issues, hence this project.
 
-This is a [Greasemonkey](https://www.greasespot.net) script written and tested for [TamperMonkey](https://tampermonkey.net) on Chrome. It has not been tested on any other platform. It fixes all known Chrome incompatibilities for Replicon Timesheet sites.
+This is a [Greasemonkey](https://www.greasespot.net) script written and tested for [TamperMonkey](https://tampermonkey.net) on both Chrome and Firefox. It has not been tested on any other platform. It fixes all known Chrome and Firefox incompatibilities for Replicon Timesheet sites.
 
 ## Usage
 
-This script fixes the aforementioned Replicon products from the outside, for your Chrome browser only. It does not affect the server at all, nor does it affect any other clients. To use it,
+This script fixes the aforementioned Replicon products from the outside, for your browser only. It does not affect the server at all, nor does it affect any other clients. To use it,
 
 1. Install [Chrome Browser](https://www.google.com/chrome/browser/desktop/index.html).
 2. Install [TamperMonkey](https://tampermonkey.net) plugin on Chrome.
@@ -20,7 +20,7 @@ This script fixes the aforementioned Replicon products from the outside, for you
 
 The `@include` matches the URL `http[s]://timesheet.*.*/Timesheet/main.aspx`. This matches what I've seen, but it may need adjusting for your instance. The more specific you make it the safer it will be for you to deploy this script.
 
-The only way for this to take effect company-wide would be for the Chrome browser, the TamperMonkey plugin and the Replicon script to be installed on each client. (Or Replicon themselves could release a patch, but who knows if that's feasible.)
+The only way for this to take effect company-wide would be for the browser, the TamperMonkey plugin and the Replicon script to be installed on each client. (Or Replicon themselves could release a patch, but who knows if that's feasible.)
 
 ## "Design"
 
@@ -45,7 +45,7 @@ This throws an "Event is undefined" error. It's mis-identifying the browser as b
 
 This GreaseMonkey script does not fix this issue. Trixie is dead and I can't be bothered to investigate [IE7Pro](https://en.wikipedia.org/wiki/IE7Pro).
 
-## Chrome issues
+## Chrome and Firefox issues
 
 There are two main compatibility issues here.
 
@@ -53,11 +53,11 @@ There are two main compatibility issues here.
 
 The inner iframe hangs on "Generating Timesheet...".
 
-This is due to the way that Replicon interprets `window.load`, where `load` is the ID of an iframe used to perform dynamic GETs. In Internet Explorer, `window.load` evaluates to the inner window of the iframe. Somewhat more sanely, in Chrome, it evaluates to the iframe object itself. The workaround is to assign `window.load` to be the `contentWindow` of the iframe.
+This is due to the way that Replicon interprets `window.load`, where `load` is the ID of an iframe used to perform dynamic GETs. In Internet Explorer, `window.load` evaluates to the inner window of the iframe. Somewhat more sanely, in other browsers, it evaluates to the iframe object itself. The workaround is to assign `window.load` to be the `contentWindow` of the iframe.
 
 ### eval faceplant
 
-Another prominent feature of Replicon's design is its propensity to read its own source, parse it, hack on it and re-eval it. In Internet Explorer they've managed to get this working. In Chrome, it fails due to certain types of `function.toString()` source containing comments. The workaround is to strip out inline comments after the source reading step.
+Another prominent feature of Replicon's design is its propensity to read its own source, parse it, hack on it and re-eval it. In Internet Explorer they've managed to get this working. In Chrome, it fails due to certain types of `function.toString()` source containing comments. In Firefox, it fails due to there being newlines in the same place. The workaround is to strip out inline comments and newlines from the parameter list of decompiled functions after the source reading step.
 
 ## Post-Mortem
 
